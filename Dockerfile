@@ -1,14 +1,12 @@
-# Use a lightweight JDK base image
-FROM eclipse-temurin:17-jdk-alpine
-
-# Set app directory
+# Stage 1: Build
+FROM maven:3.9.3-eclipse-temurin-17 AS build
 WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
 
-# Copy jar built from Maven
-COPY target/instagram-cloudinary-post-0.0.1-SNAPSHOT.jar app.jar
-
-# Expose port
+# Stage 2: Run
+FROM eclipse-temurin:17-jdk-alpine
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
-
-# Run the app
-ENTRYPOINT ["java","-jar","app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
