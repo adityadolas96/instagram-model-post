@@ -6,3 +6,4 @@ services:
     container_name: instagram-cloudinary-post
     env_file:
       - .env
+    restart: unless-stopped
