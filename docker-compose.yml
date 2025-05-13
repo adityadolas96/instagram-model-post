@@ -1,0 +1,8 @@
+services:
+  instagram-cloudinary-post:
+    build: .
+    ports:
+      - "8080:8080"
+    container_name: instagram-cloudinary-post
+    env_file:
+      - .env
