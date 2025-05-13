@@ -31,7 +31,7 @@ public class InstagramService {
 
         Map<String, Object> requestBody = Map.of(
                 "image_url", imageUrl,
-                "caption", "Posted via API",
+                "caption", "Indian Bikini Models! #indianmodels #bikinimodels #hotmodels #indianbikinimodels",
                 "access_token", accessToken
         );
 
