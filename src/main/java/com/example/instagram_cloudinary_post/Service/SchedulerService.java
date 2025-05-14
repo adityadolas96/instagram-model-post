@@ -11,21 +11,19 @@ import java.util.Random;
 public class SchedulerService {
     private static final Logger logger = LoggerFactory.getLogger(InstagramService.class);
 
-    private final CloudinaryService cloudinaryService;
+    private final ImageKitService imageKitService;
     private final InstagramService instagramService;
 
-    public SchedulerService(CloudinaryService cloudinaryService, InstagramService instagramService) {
-        this.cloudinaryService = cloudinaryService;
+    public SchedulerService(ImageKitService imageKitService, InstagramService instagramService) {
+        this.imageKitService = imageKitService;
         this.instagramService = instagramService;
     }
 
     // ⏰ Run every 15 minutes
-    @Scheduled(fixedRate = 15 * 60 * 1000)
+    @Scheduled(fixedRate = 60 * 60 * 1000)
     public void syncToInstagram() {
-        var imageUrls = cloudinaryService.fetchImageUrls();
-        Random random = new Random();
-        int randomIndex = random.nextInt(imageUrls.size()-1);
-        instagramService.publishMedia(instagramService.createMedia(imageUrls.get(randomIndex)));
+        var imageUrls = imageKitService.getRandomFileUrl();
+        instagramService.publishMedia(instagramService.createMedia(imageUrls));
     }
 
     // ⏰ Run every 15 minutes

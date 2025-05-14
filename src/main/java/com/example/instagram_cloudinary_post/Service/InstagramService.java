@@ -14,7 +14,7 @@ import java.util.Map;
 public class InstagramService {
     private static final Logger logger = LoggerFactory.getLogger(InstagramService.class);
 
-    private final WebClient webClient;
+    private WebClient webClient;
 
     @Value("${instagram.access-token}")
     private String accessToken;
@@ -22,12 +22,18 @@ public class InstagramService {
     @Value("${instagram.account-id}")
     private String accountId;
 
-    public InstagramService(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl("https://graph.instagram.com/v19.0/").build();
+    @PostConstruct
+    public void init() {
+        this.webClient = WebClient.builder()
+                .baseUrl("https://graph.instagram.com/v19.0/")
+                .build();
     }
 
+    /**
+     * Step 1: Create media container
+     */
     public String createMedia(String imageUrl) {
-        logger.info("Creating Instagram media object...");
+        logger.info("Creating Instagram media object with image URL: {}", imageUrl);
 
         Map<String, Object> requestBody = Map.of(
                 "image_url", imageUrl,
@@ -37,14 +43,14 @@ public class InstagramService {
 
         try {
             Map<String, Object> response = webClient.post()
-                    .uri(accountId+"/media")
+                    .uri(accountId + "/media")
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestBody)
                     .retrieve()
                     .bodyToMono(Map.class)
-                    .block();  // blocking for simplicity; consider async if preferred
+                    .block();
 
-            logger.info("Creation Response: {}", response);
+            logger.info("Media creation response: {}", response);
             return response != null ? response.get("id").toString() : null;
         } catch (Exception e) {
             logger.error("Error creating media on Instagram", e);
@@ -52,8 +58,11 @@ public class InstagramService {
         }
     }
 
+    /**
+     * Step 2: Publish the created media
+     */
     public String publishMedia(String creationId) {
-        logger.info("Publishing Instagram media object...");
+        logger.info("Publishing Instagram media object with creation ID: {}", creationId);
 
         Map<String, Object> requestBody = Map.of(
                 "creation_id", creationId,
@@ -62,14 +71,14 @@ public class InstagramService {
 
         try {
             Map<String, Object> response = webClient.post()
-                    .uri(accountId+"/media_publish")
+                    .uri(accountId + "/media_publish")
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestBody)
                     .retrieve()
                     .bodyToMono(Map.class)
-                    .block();  // blocking for simplicity; consider async if preferred
+                    .block();
 
-            logger.info("Posted Successfully!");
+            logger.info("Publish response: {}", response);
             return response != null ? response.get("id").toString() : null;
         } catch (Exception e) {
             logger.error("Error publishing media on Instagram", e);
